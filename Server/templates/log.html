@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8'>
+  <!--HandsOnTable-->
+  <script src='/jquery/jquery-3.3.1.min.js'></script>
+  <script src='/handsontable/dist/handsontable.full.js'></script>
+  <script src='/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+  <link rel='stylesheet' href='/bootstrap/3.3.7/css/bootstrap.min.css'>
+  <link rel='stylesheet' href='/bootstrap/3.3.7/css/bootstrap-theme.min.css'>
+  <!--<script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js'></script>-->
+  <!--<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'>-->
+  <!--<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap-theme.min.css'>-->
+  <link rel='stylesheet' media='screen' href='/handsontable/dist/handsontable.full.css'>
+  <link rel='stylesheet' href='/default.css'>
+  <script type='text/javascript' src='/jquery.min.js'></script>
+ 
+</head>
+
+<body>
+  <div id='FULL'>
+    <div id='List'></div>
+  </div>
+  <div id='BOTTOM'></div>
+  <div id='USER'></div>
+  <div id='LOG'></div>
+
+
+  <script>
+    //Server Side Event 
+    var es = new EventSource("/event");
+    es.onmessage = function (event) {
+      console.log(event.data)
+      log = JSON.parse(event.data)
+      logbox = document.getElementById('LOG')
+      logbox.innerHTML =  log
+    }
+
+    function resize_Window() {
+      console.log($('#FULL').height())
+      List.updateSettings({ width: $('#FULL').width(), height: $('#FULL').height() })
+      List.render()
+    }
+    //  HandsOnTable Create with initial Data
+    var settings = {
+      data: [],
+      stretchH: 'all',
+      colHeaders: ['uid', 'Event', 'Time', 'Actor', 'item1', 'item2', 'change'], colWidths: [20, 30, 60, 40, 30, 30, 300],
+      autoColumnSize: true,
+      columns: [
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true }
+      ],
+    }
+
+    List = new Handsontable(document.getElementById('List'), settings);
+    var logs = []
+    function updateList() { //  List Request and Update
+      logs = []
+      jQuery.post('/logs', function (result) {
+        logs = result
+        List.loadData(logs)
+        List.render()
+      })
+    }
+
+    $(window).resize(function () { resize_Window() });
+    window.addEventListener('DOMContentLoaded', function () {
+      resize_Window()
+      updateList()
+    })
+    function Download(url) { document.getElementById('my_iframe').src = url; };
+
+  </script>
+  <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+  <script>if (window.module) module = window.module;</script>
+
+  <iframe id='my_iframe' style='display:none;'></iframe>
+</body>
+
+</html>

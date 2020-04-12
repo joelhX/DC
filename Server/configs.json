@@ -1,0 +1,31 @@
+{
+    "URL": "https://127.0.0.1:444/",
+    "mysql": {
+        "host": "127.0.0.1",
+        "port": 3306,
+        "user": "rmmanager",
+        "password": "rmmanager!@#",
+        "database": "rm",
+        "multipleStatements": true
+    },
+    "Directory": {
+        "upload": "./uploads",
+        "items": "./items",
+        "MileStones": "./MileStones",
+        "plugins": "./plugins",
+        "temp": "./temp"
+    },
+    "plugins": {
+        "export_docx": "Export.exe",
+        "export_xlsx": "Export.exe",
+        "export_milestone":"MileStonBackup.cmd",
+        "import": "Import.exe"
+        
+    },
+    "License":{
+        "MaxConnection":50,
+        "Key":"1234567890"
+    }
+    
+    
+}

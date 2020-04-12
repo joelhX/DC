@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8'>
+  <!--HandsOnTable-->
+  <script src='/jquery/jquery-3.3.1.min.js'></script>
+  <script src='/handsontable/dist/handsontable.full.js'></script>
+  <script src='/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+  <link rel='stylesheet' href='/bootstrap/3.3.7/css/bootstrap.min.css'>
+  <link rel='stylesheet' href='/bootstrap/3.3.7/css/bootstrap-theme.min.css'>
+  <!--<script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js'></script>-->
+  <!--<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'>-->
+  <!--<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap-theme.min.css'>-->
+  <link rel='stylesheet' media='screen' href='/handsontable/dist/handsontable.full.css'>
+  <link rel='stylesheet' href='/default.css'>
+  <script type='text/javascript' src='/jquery.min.js'></script>
+  
+</head>
+
+<body>
+  <div id='FULL'>
+    <div id='List'></div>
+  </div>
+  <div id='LOG'></div>
+
+  <script>
+    //Server Side Event 
+    var es = new EventSource("/event");
+    es.onmessage = function (event) {
+      console.log(event.data)
+      log = JSON.parse(event.data)
+      logbox = document.getElementById('LOG')
+      if (logbox.innerHTML.length > 1000) { logbox.innerHTML = "" }
+      logbox.innerHTML += "&#10;" + log
+      logbox.scrollTop = logbox.scrollHeight;
+    }
+
+    function resize_Window() {
+      //List.updateSettings({ width: $('#CENTER').width(), height: $('#CENTER').height() })
+      List.updateSettings({ width: $('#FULL').width(), height: $('#FULL').height() })
+      List.render()
+    }
+
+    function Save() {
+      List.selectCell(0, 1);
+      List.selectCell(0, 0);
+      var data=List.getData()
+      for(let a in  data)
+      { if (data[a] !== configuration[a]) { jQuery.post('/EditCSCI', { data: data[a] }, function (result) { console.log(data[a]) }) } }
+    }
+
+    //  HandsOnTable Create with initial Data
+
+    var settings = {
+      data: [],
+      stretchH: 'all',
+      colHeaders: ['iid', 'CSCI Name', 'Owner', '1', '2', '3'], colWidths: [15, 30, 40, 40, 40, 40],
+      autoColumnSize: true, 
+      columns: [
+        { type: 'text', readOnly: true },
+        { type: 'text' },
+        { type: 'text' },
+        { type: 'text' },
+        { type: 'text' },
+        { type: 'text' },
+      ],
+      afterDocumentKeyDown: function (event) { KeyEvent(event) },
+      contextMenu: {//        callback: function (key, selection, clickEvent) {        },
+        items: {
+          'AddCSCI': { name: '아이템 추가[A]', callback: function () { setTimeout(function () { AddItem(); }, 0); } },
+          'DelCSCI': { name: '아이템 삭제[Delete]', callback: function () { setTimeout(function () { DeleteItem(List.getSelected()) }, 0); } }
+        }
+      }
+    }
+
+    List = new Handsontable(document.getElementById('List'), settings);
+    function KeyEvent(event) {
+      if (event.realTarget.id !== 'HandsontableCopyPaste') {
+        return
+      }
+      switch (event.key) {
+        case 'i':
+        case 'I':
+          AddItem(0)
+          break
+        case 'Delete':
+          DeleteItem()
+          break
+      }
+    }
+    var configuration = []
+    function updateList() { //  List Request and Update
+      configuration = []
+      jQuery.post('/configuration', function (result) {
+        for (let csci of result[0]) {
+          configuration.push([csci.csciid, csci.name, csci.owner])
+        }
+      })
+      List.loadData([])
+      List.render()
+      
+      setTimeout(function(){
+        List.loadData(configuration)
+        List.render()
+      },100)
+     1 
+    }
+
+
+    function generateL() {
+      if (documentkind !== undefined) {
+        jQuery.post('/Generate', { document: documentkind[0], component: documentkind[1], name: 'generate', filter: 'all' }, function (result) { Download(result) })
+      }
+    }
+
+    function AddItem(type) {
+      Save()
+      jQuery.post('/AddCSCI', function (result) {
+        updateList()
+      })
+    }
+    $(window).resize(function () { resize_Window() });
+    function DeleteItem() {
+      alert("dangling lnk will be generated")
+      return
+      var selected = List.getSelected()
+      var data = List.getData()
+      var deleteitems = []
+      if (selected[0] > selected[2]) { [selected[0], selected[2]] = [selected[2], selected[0]] }
+      for (var r = selected[0]; r < selected[2] + 1; r++) { deleteitems.push(data[r][0]) }
+      jQuery.post('/DeleteCSCI', { items: deleteitems }, function (result) { updateList() })
+
+    }
+    window.addEventListener('DOMContentLoaded', function () {
+      resize_Window()
+      try {
+        const { ipcRenderer } = require('electron')
+        ipcRenderer.on("Save", (event, arg) => { Save(); })
+        ipcRenderer.on('Generate', (event, arg) => { generateL() })
+      }
+      catch{ console.log('electron load failed') }
+      updateList()
+    })
+    function Download(url) { document.getElementById('my_iframe').src = url; };
+
+  </script>
+  <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+  <script>if (window.module) module = window.module;</script>
+
+  <iframe id='my_iframe' style='display:none;'></iframe>
+</body>
+
+</html>

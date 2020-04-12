@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8'>
+  <!--HandsOnTable-->
+  <script src='/jquery/jquery-3.3.1.min.js'></script>
+  <script src='/handsontable/dist/handsontable.full.js'></script>
+  <script src='/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+  <link rel='stylesheet' href='/bootstrap/3.3.7/css/bootstrap.min.css'>
+  <link rel='stylesheet' href='/bootstrap/3.3.7/css/bootstrap-theme.min.css'>
+  <!--<script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js'></script>-->
+  <!--<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'>-->
+  <!--<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap-theme.min.css'>-->
+  <link rel='stylesheet' media='screen' href='/handsontable/dist/handsontable.full.css'>
+  <link rel='stylesheet' href='/default.css'>
+  <script type='text/javascript' src='/jquery.min.js'></script>
+<style>
+    
+</style>
+</head>
+
+<body>
+  <div id='FULL'>
+    <div id='List'></div>
+  </div>
+  <div id='BOTTOM'></div>
+  <div id='USER'></div>
+  <div id='LOG'></div>
+  
+
+  <script>
+    //Server Side Event 
+    var es = new EventSource("/event");
+    es.onmessage = function (event) {
+      console.log(event.data)
+      log = JSON.parse(event.data)
+      logbox = document.getElementById('LOG')
+      if (logbox.innerHTML.length > 1000) { logbox.innerHTML = "" }
+      logbox.innerHTML += "&#10;" + log
+      logbox.scrollTop = logbox.scrollHeight;
+    }
+
+    function resize_Window() {
+      List.updateSettings({ width: $('#FULL').width(), height: $('#FULL').height() })
+      List.render()
+    }
+
+       //  HandsOnTable Create with initial Data
+  var select=false
+    var settings = {
+      data: [],
+      stretchH: 'all',
+      colHeaders: ['uid', 'UserID', 'Name', 'Privilige', 'Last Access Addr', 'Last Access Time'], colWidths: [15, 70, 100, 70, 100, 100],
+      autoColumnSize: true,
+      afterSelection: function (row) { select = true },
+      afterChange: function (changes) {if (select) { Save() } },
+      columns: [
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true },
+        { type: 'dropdown', source: ['Waiting','Reviewer', 'Writer', 'Manager'] },
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true }
+      ],
+    }
+
+    List = new Handsontable(document.getElementById('List'), settings);
+    var users = []
+    function updateList() { //  List Request and Update
+      users = []
+      jQuery.post('/Users', function (result) {
+        users = result
+        List.loadData(users)
+        List.render()
+      })
+
+    }
+
+  
+    function Save() {
+      var data = List.getData()
+      for (let a in data) { if (data[a] !== users[a]) { jQuery.post('/EditUser', { data: users[a] }, function (result) { console.log(users[a]) }) } }
+    }
+
+    $(window).resize(function () { resize_Window() });
+    
+    window.addEventListener('DOMContentLoaded', function () {
+      resize_Window()
+      try {
+        const { ipcRenderer } = require('electron')
+        ipcRenderer.on("Save", (event, arg) => { Save(); })
+      }
+      catch{ console.log('electron load failed') }
+      updateList()
+    })
+    function Download(url) { document.getElementById('my_iframe').src = url; };
+
+  </script>
+  <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+  <script>if (window.module) module = window.module;</script>
+
+  <iframe id='my_iframe' style='display:none;'></iframe>
+</body>
+
+</html>

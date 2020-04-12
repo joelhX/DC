@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8'>
+  <!--HandsOnTable-->
+  <script src='/jquery/jquery-3.3.1.min.js'></script>
+  <script src='/handsontable/dist/handsontable.full.js'></script>
+  <script src='/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+  <link rel='stylesheet' href='/bootstrap/3.3.7/css/bootstrap.min.css'>
+  <link rel='stylesheet' href='/bootstrap/3.3.7/css/bootstrap-theme.min.css'>
+  <!--<script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js'></script>-->
+  <!--<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'>-->
+  <!--<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap-theme.min.css'>-->
+  <link rel='stylesheet' media='screen' href='/handsontable/dist/handsontable.full.css'>
+  <link rel='stylesheet' href='/default.css'>
+    <style>
+    .LEFT_REVIEWCONFIRM {
+    position: absolute;
+    border: 1px solid #333333;
+    top: 0px;
+    left: 0%;
+    width: 45%;
+    bottom:20px;
+    margin-top: 0px;
+    padding: 0px; 
+  }
+  .RIGHT_REVIEWCONFIRM {
+    position: absolute;
+    border: 1px solid #333333;
+    top: 0px;
+    left: 45%;
+    width: 55%;
+    bottom:20px;
+    margin-top: 0px;
+    padding: 0px; 
+  }
+    </style>
+  
+
+</head>
+<body>
+    <div id='LEFT' class='LEFT_REVIEWCONFIRM'>
+        <div id='List_Left'></div>
+    </div>
+    <div id='RIGHT' class='RIGHT_REVIEWCONFIRM'>
+        <div class='shade' style='display:iniline-block;float:left;text-align:center;height:30px;width:100%'>AS-IS</div>
+        <input type='text' id='ASIS' style='display:iniline-block;float:left;text-align:center;height:200px;width:100%' readonly ><br>
+        <div class='shade' style='display:iniline-block;float:left;text-align:center;height:30px;width:100%'>TO-BE</div>
+        <input type='text' id='TOBE' style='display:iniline-block;float:left;text-align:center;height:200px;width:100%' readonly >
+        <div class='shade' style='display:iniline-block;float:left;text-align:center;height:30px;width:100%'>Comment</div>
+        <input type='text' id='COMMENT' style='display:iniline-block;float:left;text-align:center;height:200px;width:100%'>
+        <div class='shade' style='display:iniline-block;float:left;text-align:center;height:30px;width:100%'>
+            <input type="radio" id="Accept" style='width:10%' name="chk_info" value="Accept" checked="checked">Accept
+            <input type="radio" id="Reject" style='width:10%' name="chk_info" value="Reject">Reject
+        </div>
+        <center> <button onclick='Save()'>Save</button> </center>
+        
+    </div>
+    <script>
+      var settings_L = {
+      data: [],
+      stretchH: 'all',
+      colHeaders: ['id','uid', 'Reviewer', 'Data/Time', 'State'], colWidths: [0.1, 20, 30, 50, 20],
+      autoColumnSize: true, rowHeaders: true, manualRowMove: true,
+      height: 755,
+      columns: [
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true },
+        { type: 'text', readOnly: true }
+      ],
+      /*afterDocumentKeyDown: function (event) { KeyEvent(event) },*/
+      afterSelection: function (row) {
+              lastSelected = list_L.getData()[row][0];
+               Select_Req(lastSelected);
+          },
+      
+      //beforeRowMove: function (rows, target) { BeforeOrderChange(rows, target) },
+      /*afterRowMove: function (rows, target) { AfterOrderChange(rows, target) },
+      contextMenu: {//        callback: function (key, selection, clickEvent) {        },
+        items: {
+          'AddReq': { name: '요구사항추가[R]', callback: function () { setTimeout(function () { AddItem(1); }, 0); } },
+          'AddUC': { name: 'UseCase 추가[U]', callback: function () { setTimeout(function () { AddItem(2); }, 0); } },
+          'AddDocuItem': { name: '문서요소추가[D]', callback: function () { setTimeout(function () { AddItem(0); }, 0); } },
+          'DelDocuItem': { name: '아이템 삭제[Delete]', callback: function () { setTimeout(function () { DeleteItem(list_L.getSelected()) }, 0); } }
+        }
+      }*/
+    }
+
+    function Select_Req(id)
+    {
+        jQuery.post('/ReviewItem', { itemid: id}, function (result) {
+            console.log(result)
+            document.getElementById('ASIS').value=result.asis
+            document.getElementById('TOBE').value=result.tobe
+            document.getElementById('COMMENT').value=result.comment
+            if(result.state==="2")
+            {
+              document.getElementById('Reject').checked=1
+            }
+            
+      })
+    }
+    list_L = new Handsontable(document.getElementById('List_Left'), settings_L);
+    jQuery.post('/ReviewList', { document: #DOCUMENT#, component:#COMPONENT#}, function (result) {
+        list_L.loadData([])
+        list_L.loadData(result)
+        list_L.render()
+      })
+
+      
+      function resize_Window() {
+      list_L.updateSettings({ width: $('#LEFT_REVIEWCONFIRM').width(), height: $('#LEFT_REVIEWCONFIRM').height() })
+      list_L.render()
+    }
+    window.addEventListener('DOMContentLoaded', function () {
+      resize_Window()
+    })
+
+    function Save()
+    {
+      jQuery.post('/ReviewConfirm', {document: #DOCUMENT#, component:#COMPONENT#,confirm:{ id: lastSelected, state:document.getElementById('Accept').checked?1:2 ,comment:document.getElementById('COMMENT').value}}, function (result) {
+        list_L.loadData([])
+        list_L.loadData(result)
+        list_L.render()
+      })
+    }
+    </script>
+  
+    
+  
+
+</body>
+
+</html>

@@ -8,11 +8,6 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "request": "^2.88.0",
-    "sha1": "^1.1.1",
-    "zlib": "^1.0.5"
-  },
   "productName": "Requirement Manager Client",
   "build": {
     "appId": "XXX.RequirementManager.Client",
@@ -40,6 +35,11 @@
     "directories": {
       "output": "./dist"
     }
+  },
+  "dependencies": {
+    "request": "^2.88.0",
+    "sha1": "^1.1.1",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "electron": "^8.2.1"

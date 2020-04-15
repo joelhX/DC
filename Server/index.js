@@ -1,5 +1,5 @@
 const ssl = require('./loadssl')()
-const path = require('path')
+const fs = require('fs')
 const Express = require('express')
 const ExpressSession = require('express-session')
 const ExpressSSE = require('express-sse')
@@ -146,7 +146,7 @@ setInterval(() => {
             delete users[userid]
         }
     }
-}, 5000)
+}, 10000)
 
 app.get('/Configuration', function (req, res) {
     res.write(templates['Configuration'])
@@ -216,6 +216,8 @@ app.post('/AddCSCI', function (req, res) {
         db['current'].query('Insert into configuration (name,owner) VALUES(?,?);', ['', req.session.userid], function (err, result) {
             if (err) { console.trace(err) }
             SSELog('Added' + result.insertId)
+            fs.mkdirSync("./uploads/"+result.insertId, { recursive: true })
+
             res.send('OK')
         })
     }

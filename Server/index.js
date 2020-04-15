@@ -50,7 +50,7 @@ function SendMail(email, message) { console.log(email, message) }
 
 // Floara Server SDK
 app.post('/upload_image', function (req, res) { // Store image.
-    FroalaEditorSdk.Image.upload(req, '/uploads/', function (err, data) {
+    FroalaEditorSdk.Image.upload(req, '/uploads/'+req.session.component+'/', function (err, data) {
         if (err) {
             console.trace(err);
             return res.send(JSON.stringify(err))
@@ -60,7 +60,7 @@ app.post('/upload_image', function (req, res) { // Store image.
 })
 
 app.get('/load_images', function (req, res) {
-    FroalaEditorSdk.Image.list('/uploads/', function (err, data) {
+    FroalaEditorSdk.Image.list('/uploads/'+req.session.component+'/', function (err, data) {
         if (err) {
             console.log(err)
             return res.status(404).end(JSON.stringify(err))
@@ -141,7 +141,7 @@ app.post('/CheckConnection', function (req, res) {
 
 setInterval(() => {
     for (let userid in users) {
-        if (users[userid].updated + 20000 < (new Date().getTime())) {
+        if (users[userid].updated + 7000 < (new Date().getTime())) {
             console.log('lost heartbeat ' + userid + '@' + users[userid].remoteAddress)
             delete users[userid]
         }
@@ -296,12 +296,6 @@ app.post('/configuration', function (req, res) {
         res.send([configuration, req.session.privilege, req.session.milestone])
     })
 })
-app.post('/MileStone', function (req, res) {
-    var name = req.body.milestone
-    mileStoneManager.setMileStone(name)
-    res.send('ok')
-})
-
 app.post('/MileStone', function (req, res) {
     var name = req.body.milestone
     mileStoneManager.setMileStone(name)
@@ -488,6 +482,11 @@ app.post('/List', function (req, res) {
 app.post('/item', function (req, res) {
     db[req.session.milestone].query('Select * from items where uid=?', [req.body.uid], function (err, row) {
         if (err) { console.trace(err); res.send({}) } else {
+            if(row[0]!==undefined){
+                console.log(row[0].component)
+                req.session.component=row[0].component
+            }
+            
             res.send(row[0])
         }
     })

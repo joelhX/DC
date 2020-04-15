@@ -1,4 +1,4 @@
-var rp = require('../module/ResourcProtector')()
+var rp = require('../ResourcProtector')()
 
 rp.ResourceDeflate("./")
 

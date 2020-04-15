@@ -65,7 +65,6 @@ class DocxComposer:
 			style = None
 		if(style == "1단계"): #페이지 분리 & 머리글 달기
 			self.AddHeader("#CSCI# 소프트웨어요구사항명세서(V#버전#)",item[6])
-			print(style)
 		self.document.add_paragraph(item[6], style)
 		self.insertDescription(item[9])
 
@@ -274,8 +273,6 @@ class DocxComposer:
 		r4._r.append(fldChar3)
 
 	def macro(self, macroID):
-		print(macroID)
-		print(macroID.split("#MACRO#")[1])
 		fp=eval("self.macro"+macroID.split("#MACRO#")[1])
 		
 		fp()
@@ -521,19 +518,16 @@ class DocxComposer:
 		links=[]
 		for link in self.cursor.fetchall():
 			links.append(str(link[0]))
-		print(",".join(links))
 		
 		query = "Select * from items where document=1 and type=11 and uid in ("+",".join(links)+") Order by ordering asc;"
 		self.cursor.execute(query)
 		items=self.cursor.fetchall()
-		print(items)
 		text = []
 		count=1
 		text.append("시험식별자")
 		text.append("\n".join([a[5] for a in items ]))
 		text.append("요구사항")
 		text.append("\n".join([a[5] for a in items ]))
-		print()
 		etable = EasyTable(self.document, 2, 2, style="a7")
 		etable.TableAlign("center")
 		etable.TableBorders(10)

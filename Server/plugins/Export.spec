@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['export.py'],
+a = Analysis(['Export.py'],
              pathex=['C:\\GitHub\\DC\\Server\\plugins'],
              binaries=[],
              datas=[],
@@ -23,7 +23,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='export',
+          name='Export',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,

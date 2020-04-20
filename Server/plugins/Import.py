@@ -72,7 +72,7 @@ if __name__ == '__main__':
 	del configs['mysql']['multipleStatements']
 	cnx = mysql.connector.connect(**configs['mysql'])
 	cursor = cnx.cursor()
-	if(".TEMPLATE" in filename)
+	if(".TEMPLATE" in filename):
 		import_template(cursor, filename,documentid,componentid)
 	else:
 		import_interface(cursor, filename,documentid,componentid)

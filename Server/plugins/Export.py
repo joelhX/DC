@@ -103,7 +103,8 @@ def generate_rof(cursor, filename, documentid, componentid, confirmed):
     for c,item in enumerate(result):
         STATE="Accept" if item[4]=="1" else "Reject" if item[4]=="2" else ""
         ws.append([str(c+1),level[item[5]], item[1], item[2],item[0],STATE,item[3]])
-    wb.save('./gen/'+filename.replace(".rof",".xlsx"))
+    wb.save('./gen/'+filename)
+    #wb.save('./gen/'+filename.replace(".rof",".xlsx"))
     return './gen/'+filename
 
 def levelCounter(lv):

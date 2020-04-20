@@ -18,6 +18,7 @@
     "plugins": {
         "export_docx": "Export.exe",
         "export_xlsx": "Export.exe",
+        "export_rof": "Export.exe",
         "export_milestone":"MileStonBackup.cmd",
         "import": "Import.exe"
         

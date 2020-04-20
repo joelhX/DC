@@ -90,8 +90,8 @@ var menuExport = {
 }
 var menuImport = {
   label: 'Import', submenu: [
-    { label: 'Import Interface', click(item, focusedWindow) { dialog.showOpenDialog(mainWindow, options = { filters: [{ name: 'xlsx', extentions: ['xls_', 'xlsx_'] }] }, function (filenames) { if (filenames !== undefined && filenames[0] !== undefined) { Import(filenames[0],"INTERFACE") } }) } },
-    { label: 'Import Template', click(item, focusedWindow) { dialog.showOpenDialog(mainWindow, options = { filters: [{ name: 'xlsx', extentions: ['xls_', 'xlsx_'] }] }, function (filenames) { if (filenames !== undefined && filenames[0] !== undefined) { Import(filenames[0],"TEMPLATE") } }) } }
+    { label: 'Import Interface', click(item, focusedWindow) { dialog.showOpenDialog(mainWindow, {properties:["openFile"]}).then(result=>{console.log("fdasf")})}},
+    { label: 'Import Template', click(item, focusedWindow) { dialog.showOpenDialog(mainWindow, options = { filters: [{ extentions: ['xls', 'xlsx'] }] }, function (filenames) { if (filenames !== undefined && filenames[0] !== undefined) { Import(filenames[0],"TEMPLATE") } }) } }
   ]
 }
 var menuSetting = {
@@ -177,6 +177,7 @@ ipcMain.on('SelectDoc', (event, arg) => {
 })
 
 function Import(filename, type) {
+  console.log(configs.URL.replace('https', 'http').replace(":444", "") + 'Import/'+type+'/' + SelectedDoc[0] + '/' + SelectedDoc[1])
   if (filename !== undefined) {
     fs.createReadStream(filename).pipe(
       request.post(configs.URL.replace('https', 'http').replace(":444", "") + 'Import/'+type+'/' + SelectedDoc[0] + '/' + SelectedDoc[1])

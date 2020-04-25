@@ -202,6 +202,41 @@
     <center> <button id='VIEW_TYPE11_REVIEW' onclick='Review(11)'>Review</button> </center>
   </div>
 
+  <!-- SRS UC Item 12-->
+  <div id='VIEW_TYPE12' class='RIGHT' hidden>
+    <div id='VIEW_TYPE12_DOCUMENT' class='shade'
+      style='display:iniline-block;float:left;text-align:center;height:25px;width:20%'>SRS</div>
+    <div id='VIEW_TYPE12_CSCI' class='shade'
+      style='display:iniline-block;float:left;text-align:center;height:25px;width:50%'>CSCI</div>
+    <div id='VIEW_TYPE12_UID' class='shade'
+      style='display:iniline-block;float:left;text-align:center;height:25px;width:30%'></div><br>
+    <div class='shade' style='display:iniline-block;float:left;text-align:center;height:25px;width:20%'>UseCase 식별자</div>
+    <div id='VIEW_TYPE12_RID1' style='display:iniline-block;float:left;text-align:center;height:25px;width:5%'></div>
+    <div class='shade' style='display:iniline-block;float:left;text-align:center;height:25px;width:2%'>-</div>
+    <div id='VIEW_TYPE12_RID2' style='display:iniline-block;float:left;text-align:center;height:25px;width:18%'></div>
+    <div class='shade' style='display:iniline-block;float:left;text-align:center;height:25px;width:2%'>-</div>
+    <select id='VIEW_TYPE12_RID3' style='display:iniline-block;float:left;text-align:center;height:25px;width:11%'
+      onchange='viewChange()'>
+      <option value='SFR'>SFR</option>
+      <option value='IDR'>IDR</option>
+      <option value='SSR'>SSR</option>
+      <option value='ECRR'>ECRR</option>
+      <option value='SQR'>SQR</option>
+      <option value='ETR'>ETR</option>
+      <option value='UC'>UseCase</option>
+    </select>
+    <div class='shade' style='display:iniline-block;float:left;text-align:center;height:25px;width:2%'>-</div>
+    <input type='text' id='VIEW_TYPE12_RID4' style='display:iniline-block;float:left;text-align:center;height:25px;width:40%'>
+    <br>
+    <div class='shade' style='display:iniline-block;float:left;text-align:center;height:25px;width:20%'>Use Case 명</div>
+    <input id='VIEW_TYPE12_TITLE' type='text' style='display:iniline-block;float:left;vertical-align:top;height:25px;width:80%'><br>
+    <div class='shade' style='display:iniline-block;float:left;text-align:center;height:25px;width:100%'>내용</div>
+    <br><br>
+    <textarea id='VIEW_TYPE12_FLOEDIT' style='width:100%;height:100%'></textarea>
+    <div style='float:left; border: 2px solid #48BAE4; width:700px; height: 2px;'></div><BR>
+    <center> <button id='VIEW_TYPE12_SAVE' onclick='Save(12)'>Save</button> </center>
+    <center> <button id='VIEW_TYPE12_REVIEW' onclick='Review(12)'>Review</button> </center>
+  </div>
 
   <!-- SDD REQ Item 21-->
   <div id='VIEW_TYPE21' class='RIGHT' hidden>
@@ -418,6 +453,7 @@
         $('#VIEW_TYPE0').hide();
         $('#VIEW_TYPE1').hide();
         $('#VIEW_TYPE11').hide();
+        $('#VIEW_TYPE12').hide();
         $('#VIEW_TYPE2').hide();
         $('#VIEW_TYPE21').hide();
         $('#VIEW_TYPE3').hide();
@@ -481,10 +517,10 @@
       afterRowMove: function (rows, target) { AfterOrderChange(rows, target) },
       contextMenu: {//        callback: function (key, selection, clickEvent) {        },
         items: {
+          'AddDocuItem': { name: '문서요소추가[D]', callback: function () { setTimeout(function () { AddItem(0); }, 0); } },
           'AddReq': { name: '요구사항추가[R]', callback: function () { setTimeout(function () { AddItem(1); }, 0); } },
           'AddUC': { name: 'UseCase 추가[U]', callback: function () { setTimeout(function () { AddItem(2); }, 0); } },
-          'AddDocuItem': { name: '문서요소추가[D]', callback: function () { setTimeout(function () { AddItem(0); }, 0); } },
-          'DelDocuItem': { name: '아이템 삭제[Delete]', callback: function () { setTimeout(function () { DeleteItem(list_L.getSelected()) }, 0); } }
+          'DelItem': { name: '아이템 삭제[Delete]', callback: function () { setTimeout(function () { DeleteItem(list_L.getSelected()) }, 0); } }
         }
       }
     }
@@ -673,6 +709,7 @@
       $('#VIEW_TYPE0').hide();
       $('#VIEW_TYPE1').hide();
       $('#VIEW_TYPE11').hide();
+      $('#VIEW_TYPE12').hide();
       $('#VIEW_TYPE21').hide();
       $('#VIEW_TYPE31').hide();
       $('#VIEW_TYPE41').hide();
@@ -795,7 +832,44 @@
             $('#VIEW_TYPE11_FLOEDIT').froalaEditor('html.set', result.description);
 
             break;
+          case 12: //SRS Item
+            $('#VIEW_TYPE12').show();
 
+            document.getElementById('VIEW_TYPE12_DOCUMENT').innerText = DOCID(result)
+            document.getElementById('VIEW_TYPE12_CSCI').innerText = CSCIID(result)
+
+            document.getElementById('VIEW_TYPE12_UID').innerText = result.uid
+            console.log(result.identifier)
+            var rid = result.identifier.split('-');
+            document.getElementById('VIEW_TYPE12_RID1').innerHTML = rid[0];
+            document.getElementById('VIEW_TYPE12_RID2').innerHTML = rid[1];
+            document.getElementById('VIEW_TYPE12_RID3').value = rid[2]
+            document.getElementById('VIEW_TYPE12_RID4').value = rid[3]
+            document.getElementById('VIEW_TYPE12_TITLE').value = result.title
+            //$('#VIEW_TYPE12_FLOEDIT').froalaEditor({ height: 600, toolbarButtons: ['fullscreen', '|', 'align', 'insertTable', 'insertImage'], imageUploadURL: '/upload_image', imageManagerLoadURL: '/load_images', imageManagerPageSize: 20, imageManagerScrollOffset: 10, imageManagerDeleteURL: '/delete_image' })
+            if (Mode == 'VIEW') {
+              $('#VIEW_TYPE12_RID1').prop('disabled', true);
+              $('#VIEW_TYPE12_RID2').prop('disabled', true);
+              $('#VIEW_TYPE12_RID3').prop('disabled', true);
+              $('#VIEW_TYPE12_RID4').prop('disabled', true);
+              document.getElementById('VIEW_TYPE12_RID3').readOnly = true;
+              $('#VIEW_TYPE12_FLOEDIT').froalaEditor('edit.off')
+              $('#VIEW_TYPE12_SAVE').hide()
+              $('#VIEW_TYPE12_REVIEW').show()
+            }
+            else {
+              $('#VIEW_TYPE12_RID1').prop('disabled', false);
+              $('#VIEW_TYPE12_RID2').prop('disabled', false);
+              $('#VIEW_TYPE12_RID3').prop('disabled', false);
+              $('#VIEW_TYPE12_RID4').prop('disabled', false);
+              document.getElementById('VIEW_TYPE12_RID3').readOnly = false;
+              $('#VIEW_TYPE12_FLOEDIT').froalaEditor('edit.on')
+              $('#VIEW_TYPE12_SAVE').show()
+              $('#VIEW_TYPE12_REVIEW').hide()
+            }
+            $('#VIEW_TYPE12_FLOEDIT').froalaEditor('html.set', result.description);
+
+            break;
           case 21: //SDD Item
             $('#VIEW_TYPE21').show();
             document.getElementById('VIEW_TYPE21_DOCUMENT').innerText = DOCID(result)
@@ -980,7 +1054,7 @@
     function Save(type) {
       if (!Authority) { return }
       switch (type) {
-        case 0:
+        case 0://DESCRIPTION
           var context = {
             'type': type,
             'uid': document.getElementById('VIEW_TYPE0_UID').innerHTML,
@@ -992,7 +1066,7 @@
           }
           break;
 
-        case 1:
+        case 1://SSS
           var context = {
             'type': type,
             'uid': document.getElementById('VIEW_TYPE1_UID').innerHTML,
@@ -1002,7 +1076,7 @@
           }
           break;
 
-        case 11:
+        case 11://SRS
           if (document.getElementById('VIEW_TYPE11_USECASE_LABEL').style.display == 'none') {
             document.getElementById('VIEW_TYPE11_USECASE').value = ''
           }
@@ -1015,6 +1089,19 @@
             'src': document.getElementById('VIEW_TYPE11_SOURCE').value,
             'uc': document.getElementById('VIEW_TYPE11_USECASE').value,
             'description': document.getElementById('VIEW_TYPE11_FLOEDIT').value
+          }
+          break;
+
+        case 12://SRS UC
+          var context = {
+            'type': type,
+            'uid': document.getElementById('VIEW_TYPE12_UID').innerText,
+            'identifier': document.getElementById('VIEW_TYPE12_RID1').innerText + '-' + document.getElementById('VIEW_TYPE12_RID2').innerText + '-' + document.getElementById('VIEW_TYPE12_RID3').value + '-' + document.getElementById('VIEW_TYPE12_RID4').value,
+            'testtype': '',
+            'title': document.getElementById('VIEW_TYPE12_TITLE').value,
+            'src': '',
+            'uc': '',
+            'description': document.getElementById('VIEW_TYPE12_FLOEDIT').value
           }
           break;
 
@@ -1058,6 +1145,7 @@
       $('#VIEW_TYPE0').hide();
       $('#VIEW_TYPE1').hide();
       $('#VIEW_TYPE11').hide();
+      $('#VIEW_TYPE12').hide();
       $('#VIEW_TYPE21').hide();
       $('#VIEW_TYPE31').hide();
       resize_Window()
@@ -1092,6 +1180,7 @@
       $('#VIEW_TYPE0').hide();
       $('#VIEW_TYPE1').hide();
       $('#VIEW_TYPE11').hide();
+      $('#VIEW_TYPE12').hide();
       $('#VIEW_TYPE21').hide();
       $('#VIEW_TYPE31').hide();
       resize_Window()
@@ -1176,6 +1265,7 @@
     $('#VIEW_TYPE0_FLOEDIT').froalaEditor({ height: 800, toolbarButtons: ['fullscreen', '|', 'align', 'insertTable', 'insertImage'], imageUploadURL: '/upload_image', imageManagerLoadURL: '/load_images', imageManagerPageSize: 20, imageManagerScrollOffset: 10, imageManagerDeleteURL: '/delete_image' })
     $('#VIEW_TYPE1_FLOEDIT').froalaEditor({ height: 600, toolbarButtons: ['fullscreen', '|', 'align', 'insertTable', 'insertImage'], imageUploadURL: '/upload_image', imageManagerLoadURL: '/load_images', imageManagerPageSize: 20, imageManagerScrollOffset: 10, imageManagerDeleteURL: '/delete_image' })
     $('#VIEW_TYPE11_FLOEDIT').froalaEditor({ height: 700, toolbarButtons: ['fullscreen', '|', 'align', 'insertTable', 'insertImage'], imageUploadURL: '/upload_image', imageManagerLoadURL: '/load_images', imageManagerPageSize: 20, imageManagerScrollOffset: 10, imageManagerDeleteURL: '/delete_image' })
+    $('#VIEW_TYPE12_FLOEDIT').froalaEditor({ height: 700, toolbarButtons: ['fullscreen', '|', 'align', 'insertTable', 'insertImage'], imageUploadURL: '/upload_image', imageManagerLoadURL: '/load_images', imageManagerPageSize: 20, imageManagerScrollOffset: 10, imageManagerDeleteURL: '/delete_image' })
     $('#VIEW_TYPE21_FLOEDIT').froalaEditor({ height: 700, toolbarButtons: ['fullscreen', '|', 'align', 'insertTable', 'insertImage'], imageUploadURL: '/upload_image', imageManagerLoadURL: '/load_images', imageManagerPageSize: 20, imageManagerScrollOffset: 10, imageManagerDeleteURL: '/delete_image' })
     $('#VIEW_TYPE31_FLOEDIT').froalaEditor({ height: 900, toolbarButtons: ['fullscreen', '|', 'align', 'insertTable', 'insertImage'], imageUploadURL: '/upload_image', imageManagerLoadURL: '/load_images', imageManagerPageSize: 20, imageManagerScrollOffset: 10, imageManagerDeleteURL: '/delete_image' })
   </script>

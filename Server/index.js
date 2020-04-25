@@ -569,14 +569,16 @@ app.post('/Link', function (req, res) {
     }
 })
 
-function GetIdentifier(document, component) {
+function GetIdentifier(document, component, type) {
     var identifier = '-' + configuration[component][0] + '-SFR-' + 'TBD'
     switch (document) {
         case '0':
             identifier = 'SSS-SFR-TBD'
             break
         case '1':
-            identifier = 'R' + identifier
+            if (type === '12') { identifier = 'UC' + identifier }
+            else{identifier = 'R' + identifier}
+            
             break
         case '2':
             identifier = 'D' + identifier
@@ -590,9 +592,15 @@ function GetIdentifier(document, component) {
 
 app.post('/AddItem', function (req, res) {
     if (Authority.indexOf(req.session.privilege) < 2) { res.send('OK') } else {
-        var IdSection = GetIdentifier(req.body.document, req.body.component)
+        var IdSection = GetIdentifier(req.body.document, req.body.component, req.body.type)
         if (req.body.type === '0') { IdSection = '1.' }
-        db['current'].query('Insert into items (ordering,identifier,title,src,uc,description,type,document,component) VALUES(?,?,?,?,?,?,?,?,?);', [req.body.seq, IdSection, '', '', '', '', req.body.type, req.body.document, req.body.component], function (err, result) {
+        var desc=""
+        if(req.body.type=="12")
+        {
+            desc='<p><br></p><table style="margin-left: calc(0%); width: 100%;"><tbody><tr><td style="text-align: center; width: 18.7974%; background-color: rgb(209, 213, 216);">항목</td><td colspan="2" style="width: 81.0649%; background-color: rgb(209, 213, 216);"><br></td></tr><tr><td style="text-align: center; width: 18.7974%;">개요</td><td colspan="2" style="width: 81.0649%;"><br></td></tr><tr><td style="text-align: center; width: 18.7974%;">주액터</td><td colspan="2" style="width: 81.0649%;"><br></td></tr><tr><td style="text-align: center; width: 18.7974%;">사전조건</td><td colspan="2" style="width: 81.0649%;"><br></td></tr><tr><td style="text-align: center; width: 18.7974%;">사후조건</td><td colspan="2" style="width: 81.0649%;"><br></td></tr><tr><td style="text-align: center; width: 18.7974%;">트리거</td><td colspan="2" style="width: 81.0649%;"><br></td></tr><tr><td rowspan="12" style="text-align: center; width: 18.7974%;">시나리오<br>(기본)</td><td style="width: 40.5517%; background-color: rgb(209, 213, 216);">사용자</td><td style="width: 40.5517%; background-color: rgb(209, 213, 216);">시스템</td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="width: 40.5517%;"><br></td><td style="width: 40.5517%;"><br></td></tr><tr><td style="text-align: center; width: 18.7974%;">시나리오<br>(대안)</td><td colspan="2" style="width: 81.0649%;"><br></td></tr><tr><td style="text-align: center; width: 18.7974%;">시나리오<br>(예외상황)</td><td colspan="2" style="width: 81.0649%;"><br></td></tr><tr><td style="text-align: center; width: 18.7974%;">비고</td><td colspan="2" style="width: 81.0649%;"><br></td></tr><tr><td style="text-align: center; width: 18.7974%;">관련 요구사항</td><td colspan="2" style="width: 81.0649%;">#UC_RID#</td></tr></tbody></table>'
+        }
+        
+        db['current'].query('Insert into items (ordering,identifier,title,src,uc,description,type,document,component) VALUES(?,?,?,?,?,?,?,?,?);', [req.body.seq, IdSection, '', '', '', desc, req.body.type, req.body.document, req.body.component], function (err, result) {
             if (err) { console.trace(err) }
             SSELog('Add Item (' + result.insertId + ')')
             db['current'].query('set @order=0; update items set ordering=@order:=@order+1 where document=? and component=? order by ordering;', [req.body.document, req.body.component], function (err, result) {
